@@ -19,21 +19,40 @@ class UserController extends Controller
     }
     public function signin(Request $request)
     {
-        $request->validate([
+        $data = [
+             "email_l" => $request->email_l,
+            "password_l" => $request->password_l
+        ];
+        $rules = [
             "email_l" => "required|email",
             "password_l" => "required"
-        ]);
-
-        $crenditionals = [
-            "email" => $request->email_l,
-            "password" => $request->password_l,
         ];
-
-        if (Auth::attempt($crenditionals)) {
-            return redirect()->route('catalog');
+        $messages = [
+            'email_l.required'=>'Заполните почту',
+            'email_l.email'=>'Проверьте введенную почту',
+            
+            'password_l.required'=>'Заполните пароль',
+        ];
+        $validate = Validator::make($data, $rules, $messages);
+        if($validate->fails()){
+            return redirect()->back()
+            ->withErrors($validate)
+            ->withInput();
         }
-
-        return redirect()->back()->withErrors(["message" => "Неверный логин или пароль"]);
+        else{
+            $crenditionals = [
+                "email" => $request->email_l,
+                "password" => $request->password_l,
+            ];
+    
+            if (Auth::attempt($crenditionals)) {
+                return redirect()->route('catalog');
+            }
+            else {
+                return redirect()->back()->withErrors(["message" => "Неверный логин или пароль"]);
+            }
+        }
+        
     }
     public function signup(Request $request)
     {
@@ -83,55 +102,5 @@ class UserController extends Controller
     }
 
 
-    $query18 = DB::table('products')->select('products.*')->orderBy('products.current_price', 'DESC')->limit(5);
-    $query19 = DB::table('products')->select('products.*', 'count(order_products.product_id)')->join('order_products', 'products.id', '=', 'order_products.product_id')->groupBy('product.id')->having('count(order_products.product_id)', '=', 0);
-    $query20 = DB::table('orders')->select((count(CASE
-    WHEN created_at <= '2024-12-31' AND created_at >= '2024-12-01' THEN 1
-    ELSE NULL
-    END)) as 'december', 
-    (count(CASE
-    WHEN created_at <= '2024-11-30' AND created_at >= '2024-11-01' THEN 1
-    ELSE NULL
-    END)) as 'november',
-    (count(CASE
-    WHEN created_at <= '2024-10-31' AND created_at >= '2024-10-01' THEN 1
-    ELSE NULL
-    END)) as 'october', 
-    (count(CASE
-    WHEN created_at <= '2024-09-30' AND created_at >= '2024-09-01' THEN 1
-    ELSE NULL
-    END)) as 'september', 
-    (count(CASE
-    WHEN created_at <= '2024-08-31' AND created_at >= '2024-08-01' THEN 1
-    ELSE NULL
-    END)) as 'august', 
-    (count(CASE
-    WHEN created_at <= '2024-07-31' AND created_at >= '2024-07-01' THEN 1
-    ELSE NULL
-    END)) as 'july', 
-    (count(CASE
-    WHEN created_at <= '2024-06-30' AND created_at >= '2024-06-01' THEN 1
-    ELSE NULL
-    END)) as 'june', 
-    (count(CASE
-    WHEN created_at <= '2024-05-31' AND created_at >= '2024-05-01' THEN 1
-    ELSE NULL
-    END)) as 'may', 
-    (count(CASE
-    WHEN created_at <= '2024-05-31' AND created_at >= '2024-04-01' THEN 1
-    ELSE NULL
-    END)) as 'april', 
-    (count(CASE
-    WHEN created_at <= '2024-03-31' AND created_at >= '2024-03-01' THEN 1
-    ELSE NULL
-    END)) as 'march', 
-    (count(CASE
-    WHEN created_at <= '2024-02-29' AND created_at >= '2024-02-01' THEN 1
-    ELSE NULL
-    END)) as 'february', 
-    (count(CASE
-    WHEN created_at <= '2024-01-31' AND created_at >= '2024-01-01' THEN 1
-    ELSE NULL
-    END)) as 'january')->get();
-    $query21 =  DB::table('orders')->select('avg()')->get();
+    
 }
